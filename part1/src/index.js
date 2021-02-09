@@ -86,7 +86,36 @@ import ReactDOM from 'react-dom';
 
 // const Display = ({counter}) => <div>{counter}</div>
 
-const Button = ({handleClick, text}) => <><button onClick={handleClick}>{text}</button></>
+const Button = (props) => {
+  console.log('props value is ', props);
+  // debugger
+  const { handleClick, text } = props;
+  return(
+    <>
+      <button onClick={handleClick}>{text}</button>
+    </>
+  )
+
+}
+
+const History = (props) => {
+
+  const { allClicks } = props;
+
+  if (allClicks.length === 0) {
+    return (
+      <div>
+        the app is used by pressing the buttons
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      button press history: { allClicks.join(' ') }
+    </div>
+  )
+}
 
 const App = () => {
 
@@ -122,7 +151,7 @@ const App = () => {
       <Button handleClick={handleRightClick} text={'right'} />
       {/* <button onClick={handleRightClick}>right</button> */}
       {right}
-      <p>{ allClicks.join(' ') }</p>
+      <History allClicks={allClicks} />
     </>
   )
 }
