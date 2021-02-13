@@ -1,58 +1,55 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
-const Button = ({handleClick, text}) => <button onClick={handleClick}>{ text }</button>
-
-const Statistic = ({text, value}) => <tr><td>{text}</td><td>{value}</td></tr>
-
-const AllStats = ({ good, neutral, bad, text }) => <tr><td>{text}</td><td>{good + neutral + bad}</td></tr>
-
-const AvgStats = ({ good, bad, text }) => <tr><td>{text}</td><td>{(((good*1) + bad*(-1))/3)/3}</td></tr>
-
-const PositiveStats = ({ good, neutral, bad, text }) => <tr><td>{text}</td><td>{(good/(good + neutral + bad)) * 100} %</td></tr>
-
-const Statistics = (props) => {
-  const { good, neutral, bad } = props
-
-  if (!good && !neutral && !bad) {
-    return (
-      <div><br/>No feedback given</div>
-    )
-  } else {
-    return (
-      <>
-        <h2>statistics</h2>
-        <table>
-          <Statistic text={'good'} value={good} />
-          <Statistic text={'neutral'} value={neutral} />
-          <Statistic text={'bad'} value={bad} />
-          <AllStats text={'all'} good={good} neutral={neutral} bad={bad} />
-          <AvgStats text={'average'} good={good} bad={bad} />
-          <PositiveStats text={'positive'} good={good} neutral={neutral} bad={bad} />
-        </table>
-      </>
-    )
-  }
-}
-
-const App = () => {
-  // save clicks of each button to its own state
-  const [good, setGood] = useState(0)
-  const [neutral, setNeutral] = useState(0)
-  const [bad, setBad] = useState(0)
-
+const Button = (props) => {
   return (
-    <div>
-      <h2>give feedback</h2>
-      <Button handleClick={ () => setGood(good + 1) } text={'good'} />
-      <Button handleClick={ () => setNeutral(neutral + 1) } text={'neutral'} />
-      <Button handleClick={ () => setBad(bad + 1) } text={'bad'} />
-      <br/>
-      <Statistics good={good} neutral={neutral} bad={bad} />
-    </div>
+    <button onClick={props.handleClick}>{props.text}</button>
   )
 }
 
-ReactDOM.render(<App />,
+const App = (props) => {
+  const [selected, setSelected] = useState(0)
+  const [points, setPoints] = useState([0, 0, 0, 0, 0, 0])
+  const [maxVote, setMaxVote] = useState(0)
+
+  const setVote = () => {
+    const copy = [...points]
+    copy[selected] += 1
+    setPoints(copy)
+    setMaxVote(copy.indexOf(Math.max(...copy)))
+  }
+
+  const randomize = (maxRange) => () => {
+    const randomValue = Math.floor((Math.random() * maxRange) + 1) - 1
+    setSelected(randomValue)
+  }
+
+  return (
+    <div>
+      <h2>Anecdote of the day</h2>
+      {props.anecdotes[selected]}
+      <br/><div>has {points[selected]} votes</div><br/>
+      <Button handleClick={ () => setVote() } text={'vote'} />
+      <Button handleClick={ randomize(props.anecdotes.length) } text={'next anecdote'} />
+      <br/><br/>
+      <h2>Anecdote with most votes</h2>
+      {props.anecdotes[maxVote]}
+      <br/><div>has {points[maxVote]} votes</div><br/>
+    </div>
+
+  )
+}
+
+const anecdotes = [
+  'If it hurts, do it more often',
+  'Adding manpower to a late software project makes it later!',
+  'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
+  'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
+  'Premature optimization is the root of all evil.',
+  'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
+]
+
+ReactDOM.render(
+  <App anecdotes={anecdotes} />,
   document.getElementById('root')
 )
